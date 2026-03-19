@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -322,10 +324,9 @@
 
 <script>
 // ── JSONBIN CONFIG ────────────────────────────────────────────
-const JSONBIN_KEY  = '$2a$10$5Cmk.Nm1w9FDZYnYVcKiPOaN/tmHtKuP42s6Az.9y8FnjbYbZif0.';
-const MANAGER_PIN  = '1014';
-let   BIN_ID       = null; // resolved on first load
-const BIN_NAME     = 'qgt_2026';
+const JSONBIN_KEY = '$2a$10$5Cmk.Nm1w9FDZYnYVcKiPOaN/tmHtKuP42s6Az.9y8FnjbYbZif0.';
+const MANAGER_PIN = '1014';
+const BIN_ID      = '69bc1efab7ec241ddc82cf08';
 
 async function apiFetch(url, opts={}) {
   const headers = {
@@ -338,33 +339,14 @@ async function apiFetch(url, opts={}) {
   return res.json();
 }
 
-async function resolveOrCreateBin() {
-  // List bins and find ours by name
-  try {
-    const data = await apiFetch('https://api.jsonbin.io/v3/b', { method:'GET', headers:{'X-Bin-Meta':'true'} });
-    if (data && data.length) {
-      const found = data.find(b => b.record && b.record.name === BIN_NAME);
-      if (found) { BIN_ID = found.record.id; return; }
-    }
-  } catch(e) {}
-  // Create new bin
-  const created = await apiFetch('https://api.jsonbin.io/v3/b', {
-    method:'POST',
-    headers:{'X-Bin-Name': BIN_NAME, 'X-Bin-Private':'true'},
-    body: JSON.stringify({ allState:{}, activeQ:'q2' })
-  });
-  BIN_ID = created.metadata.id;
-}
-
 async function loadFromBin() {
-  await resolveOrCreateBin();
   const data = await apiFetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`);
   return data.record || { allState:{}, activeQ:'q2' };
 }
 
 async function saveToBin(payload) {
   await apiFetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-    method:'PUT',
+    method: 'PUT',
     body: JSON.stringify(payload)
   });
 }
